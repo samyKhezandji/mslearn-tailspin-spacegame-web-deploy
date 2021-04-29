@@ -2,9 +2,7 @@ trigger:
 - '*'
 
 variables:
-  buildConfiguration: 'Release'
-
-  
+  buildConfiguration: 'Release' 
 
 stages:
 - stage: 'Build'
@@ -86,6 +84,6 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Abonnement Azure 1'
+              azureSubscription: 'myConnectionService'
               appName: '$(WebAppName)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
