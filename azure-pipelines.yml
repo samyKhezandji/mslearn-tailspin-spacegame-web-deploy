@@ -126,3 +126,5 @@ stages:
               azureSubscription: 'myConnectionService'
               appName: '$(WebAppNameTest)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+              
