@@ -65,7 +65,7 @@ stages:
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
 
-  - job: BuildDacpac
+  - job: BuildDacpac    # job parallele pour la construction du schema de base de données.
     pool:
       vmImage: 'windows-2019'
     steps:
@@ -94,7 +94,7 @@ stages:
         artifactName: dropDacpac
       condition: succeededOrFailed()
 
-- stage: DBAVerificationScript
+- stage: DBAVerificationScript    # stage pour l'affichage des modification du schema.
   displayName: 'Script database schema changes'
   dependsOn: Build
   jobs:
@@ -135,7 +135,7 @@ stages:
             displayName: Show change script and check for schema changes
             inputs:
               targetType: 'inline'
-              script: | 
+              script: |   # s'il detecte un changement, il cré une variable 'schemaChanged=true' et l'ajoute au groupe Release. 
                 # Print the schema change script
                 Write-Host "Auto Generated SQL Update Script:"
                 Get-Content d:\a\1\s\GeneratedOutputFiles\$(databasename)_Script.sql | foreach {Write-Output $_}
@@ -165,12 +165,22 @@ stages:
                     Variables = $vars}
                   Update-VSTeamVariableGroup @methodParameters} 
 
-- stage: DBAVerificationApply
+              #vars = 
+                #{
+                  # variables got from az pipeline
+                  #"schemaChanged" :
+                    #{
+                      #value: "true",
+                      #isSecret: false
+                    #}
+                 #}
+
+- stage: DBAVerificationApply   # stage pour l'application/deploiement du nouveau schema en BDD.
   variables: 
     - group: 'Release'
   displayName: 'Apply database schema changes'
   dependsOn: DBAVerificationScript
-  condition: and(succeeded('DBAVerificationScript'), eq(variables['schemaChanged'], True))
+  condition: and(succeeded('DBAVerificationScript'), eq(variables['schemaChanged'], True)) # s'execute que si 'schemaChanged=true'.
   jobs:
   - deployment: DBAVerificationApply
     pool:
@@ -202,7 +212,7 @@ stages:
             displayName: 'Remove "schemaChanged" pipeline variable'
             inputs:
               targetType: 'inline'
-              script: | 
+              script: |     # supprime la variable de pipeline schemaChanged.
                 Install-Module VSTeam -Scope CurrentUser -Force
                 Set-VSTeamAccount –Account $(Acct) -PersonalAccessToken $(PAT)
                 $methodParameters = @{
@@ -221,12 +231,12 @@ stages:
                   Variables = $vars}
                 Update-VSTeamVariableGroup @methodParameters
 
-- stage: 'Dev'
+- stage: 'Dev'    # stage pour le deploiement en env.dev
   displayName: 'Deploy to the dev environment'
   dependsOn:
   - DBAVerificationScript
   - DBAVerificationApply
-  condition: |
+  condition: |  # s'execute si l'artifact .dacpac a bien été constuit et peu importe si abrobation ou pas.
     and
     (
       succeeded('DBAVerificationScript'),
@@ -252,7 +262,7 @@ stages:
               appName: '$(WebAppNameDev)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Test'
+- stage: 'Test'   # stage pour le deploiement en env.test
   displayName: 'Deploy to the test environment'
   dependsOn: Dev
   condition: succeeded('Dev')
@@ -276,7 +286,7 @@ stages:
               appName: '$(WebAppNameTest)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Staging'
+- stage: 'Staging'    # stage pour le deploiement en env.stage
   displayName: 'Deploy to the staging environment'
   dependsOn: Test
   condition: succeeded('Test')
