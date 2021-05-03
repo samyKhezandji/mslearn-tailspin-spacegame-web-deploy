@@ -111,17 +111,17 @@ stages:
           - download: current
             artifact: dropDacpac
             patterns: '**/*'
-          - task: SqlAzureDacpacDeployment@1
+          - task: SqlAzureDacpacDeployment@1  # task permettant de deployer/MAJ un schéma de BDD depuis un .dacpac
             displayName: Generate schema change script
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'myConnectionService'
               authenticationType: 'server'
               serverName: '$(servername).database.windows.net'
               databaseName: '$(databasename)'
               sqlUsername: '$(adminlogin)'
               sqlPassword: '$(adminPassword)'
               deployType: 'DacpacTask'
-              deploymentAction: 'Script'
+              deploymentAction: 'Script'    # l'action consiste à MAJ dans un script le schéma de la cible afin qu'il correspende à celui de la source.
               dacpacFile: '$(Pipeline.Workspace)/dropDacpac/Tailspin.SpaceGame.Database/bin/Debug/Tailspin.SpaceGame.Database.dacpac'
               ipDetectionMethod: 'AutoDetect'
           - task: PowerShell@2
@@ -152,20 +152,20 @@ stages:
           - task: SqlAzureDacpacDeployment@1
             displayName: 'Deploy SQL schema'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'myConnectionService'
               authenticationType: 'server'
               serverName: '$(servername).database.windows.net'
               databaseName: '$(databasename)'
               sqlUsername: '$(adminlogin)'
               sqlPassword: '$(adminPassword)'
               deployType: 'DacpacTask'
-              deploymentAction: 'Publish'
+              deploymentAction: 'Publish'   # l'action consiste a deployer directement le schéma de la source dans la BDD.
               dacpacFile: '$(Pipeline.Workspace)/dropDacpac/Tailspin.SpaceGame.Database/bin/Debug/Tailspin.SpaceGame.Database.dacpac'
               ipDetectionMethod: 'AutoDetect'
 
 - stage: 'Dev'
   displayName: 'Deploy to the dev environment'
-  dependsOn: DBAVerificationApply
+  dependsOn: DBAVerificationApply   # le stage s'excute uniquement si le schéma MAJ est approuvé
   jobs:
   - deployment: Deploy
     pool:
@@ -182,7 +182,7 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'myConnectionService'
               appName: '$(WebAppNameDev)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
@@ -205,7 +205,7 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'myConnectionService'
               appName: '$(WebAppNameTest)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
@@ -228,6 +228,6 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
-              appName: '$(WebAppNameStaging)'
+              azureSubscription: 'myConnectionService'
+              appName: '$(WebAppNameStage)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
