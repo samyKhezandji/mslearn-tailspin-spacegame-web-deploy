@@ -1,7 +1,7 @@
 trigger:
-- '*'
+- '*'       # toute modification dans le repos déclenche le pipeline...
 
-variables:
+variables:      # variables globales du pipeline
   buildConfiguration: 'Release'
   releaseBranchName: 'release'
 
@@ -14,7 +14,7 @@ schedules:
   always: false 
 
 stages:
-- stage: 'Build'
+- stage: 'Build'  # stage pour la construction de l'artifact .zip. Se declenche inconditionnelement * . 
   displayName: 'Build the web application'
   jobs: 
   - job: 'Build'
@@ -74,11 +74,11 @@ stages:
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
 
-- stage: 'Dev'
+- stage: 'Dev'    # stage pour le deploiement en Dev 
   displayName: 'Deploy to the dev environment'
   dependsOn: Build
-  condition: |
-    and
+  condition: |    # se declenche a condition que le stage de build ait reussi ET sourceBranchName = releaseBranchName
+    and     
     (
       succeeded(),
       eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
@@ -103,10 +103,10 @@ stages:
               appName: '$(WebAppNameDev)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Test'
+- stage: 'Test'   # stage pour le deploiement Test
   displayName: 'Deploy to the test environment'
   dependsOn: Dev
-  #condition: eq(variables['Build.Reason'], 'Schedule')
+  #condition: eq(variables['Build.Reason'], 'Schedule')   # se declenche a condition que Build.Reason = Shedule
   jobs:
   - deployment: Deploy
     pool:
@@ -127,7 +127,7 @@ stages:
               appName: '$(WebAppNameTest)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Staging'
+- stage: 'Staging'    # stage pour le deploiement Staging
   displayName: 'Deploy to the staging environment'
   dependsOn: Test
   jobs:
