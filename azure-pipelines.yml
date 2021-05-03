@@ -128,7 +128,7 @@ stages:     # stage pour le build des artifacts .zip et .dacpac
             displayName: Show Auto Generated SQL Script
             inputs:
               targetType: 'inline'
-              script: | 
+              script: |   # affiche le script généré dans la sortie standard 
                 Write-Host "Auto Generated SQL Update Script:"
                 Get-Content d:\a\1\s\GeneratedOutputFiles\$(databasename)_Script.sql | foreach {Write-Output $_}
 
