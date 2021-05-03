@@ -4,10 +4,10 @@ trigger:
 variables:
   buildConfiguration: 'Release'
 
-stages:
+stages:     # stage pour le build des artifacts .zip et .dacpac
 - stage: 'Build'
   displayName: 'Build the web application'
-  jobs: 
+  jobs:     # job pour le build du .zip artifact
   - job: 'Build'
     displayName: 'Build job'
     pool:
@@ -65,7 +65,7 @@ stages:
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
 
-  - job: BuildDacpac
+  - job: BuildDacpac    # job parallele pour le build du .dacpac artifact
     pool:
       vmImage: 'windows-2019'
     steps:
@@ -94,11 +94,11 @@ stages:
         artifactName: dropDacpac
       condition: succeededOrFailed()
 
-- stage: DBAVerificationScript
+- stage: DBAVerificationScript    # stage pour l'affichage des modifications de schema dans un script powershell
   displayName: 'Script database schema changes'
   dependsOn: Build
   jobs:
-  - deployment: DBAVerificationScript
+  - deployment: DBAVerificationScript   # environnement soumis à une approbation
     pool:
       vmImage: 'windows-2019'
     variables:
@@ -111,7 +111,7 @@ stages:
           - download: current
             artifact: dropDacpac
             patterns: '**/*'
-          - task: SqlAzureDacpacDeployment@1  # task permettant de deployer/MAJ un schéma de BDD depuis un .dacpac
+          - task: SqlAzureDacpacDeployment@1  # task permettant de deployer/MAJ un schéma de BDD depuis un .dacpac artifact.
             displayName: Generate schema change script
             inputs:
               azureSubscription: 'myConnectionService'
@@ -132,11 +132,11 @@ stages:
                 Write-Host "Auto Generated SQL Update Script:"
                 Get-Content d:\a\1\s\GeneratedOutputFiles\$(databasename)_Script.sql | foreach {Write-Output $_}
 
-- stage: DBAVerificationApply
+- stage: DBAVerificationApply     # stage pour l'application de l'approbation pour la MAJ du schema de BDD
   displayName: 'Apply database schema changes'
   dependsOn: DBAVerificationScript
   jobs:
-  - deployment: DBAVerificationApply
+  - deployment: DBAVerificationApply  
     pool:
       vmImage: 'windows-2019'
     variables:
