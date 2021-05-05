@@ -3,6 +3,7 @@ trigger:
 
 variables:
   buildConfiguration: 'Release'
+  dotnetSdkVersion: '3.1.300'
 
 stages:
 - stage: 'Build'
@@ -46,18 +47,18 @@ stages:
         command: 'restore'
         projects: '**/*.csproj'
 
-    - task: DotNetCoreCLI@2
+    - task: DotNetCoreCLI@2    # construction des projets .NET
       displayName: 'Build the project - $(buildConfiguration)'
       inputs:
         command: 'build'
         arguments: '--no-restore --configuration $(buildConfiguration)'
         projects: '**/*.csproj'
 
-    - task: DotNetCoreCLI@2
+    - task: DotNetCoreCLI@2    # publication du projet .NET de l'appli
       displayName: 'Publish the project - $(buildConfiguration)'
       inputs:
         command: 'publish'
-        projects: '**/*.csproj'
+        projects: '$(System.DefaultWorkingDirectory)/**/Tailspin.SpaceGame.Web.csproj' 
         publishWebProjects: false
         arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
         zipAfterPublish: true
@@ -65,7 +66,7 @@ stages:
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
 
-- stage: 'Dev'
+- stage: 'Dev'    # deploiement de l'artifact de publication en dev
   displayName: 'Deploy to the dev environment'
   dependsOn: Build
   jobs:
@@ -84,11 +85,11 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'myConnectionService'
               appName: '$(WebAppNameDev)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Test'
+- stage: 'Test'   # deploiement de l'artifact de publication en test
   displayName: 'Deploy to the test environment'
   dependsOn: Dev
   jobs:
@@ -107,9 +108,34 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'myConnectionService'
               appName: '$(WebAppNameTest)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+  - job: RunUITests   # execution des tests UI
+    dependsOn: Deploy
+    displayName: 'Run UI tests'
+    pool:
+      vmImage: 'windows-2019'
+    variables:
+    - group: 'Release'
+    steps: 
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core SDK $(dotnetSdkVersion)'
+      inputs:
+        version: '$(dotnetSdkVersion)'
+    - task: DotNetCoreCLI@2   # contruction du projet .NET de test
+      displayName: 'Build the project - $(buildConfiguration)'
+      inputs:
+        command: 'build'
+        arguments: '--configuration $(buildConfiguration)'
+        projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+    - task: DotNetCoreCLI@2   # execution des tests et publication des resultats
+      displayName: 'Run unit tests - $(buildConfiguration)'
+      inputs:
+        command: 'test'
+        arguments: '--no-build --configuration $(buildConfiguration)'
+        publishTestResults: true
+        projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
 
 - stage: 'Staging'
   displayName: 'Deploy to the staging environment'
@@ -130,6 +156,6 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'myConnectionService'
               appName: '$(WebAppNameStaging)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
