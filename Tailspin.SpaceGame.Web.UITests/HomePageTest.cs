@@ -9,20 +9,22 @@ using System.Collections;
 
 namespace UITests
 {
-    [TestFixture("Chrome")]
-    [TestFixture("Firefox")]
-    [TestFixture("Edge")]
-    public class HomePageTest
+    [TestFixture("Chrome")]     // montage de test pour Chrome
+    [TestFixture("Firefox")]    // montage de test pour Firefox
+    [TestFixture("Edge")]       // montage de test pour Edge
+    public class HomePageTest   // HomePageTest vas s'execter 1 fois pour chaque TestFixture
     {
         private string browser;
-        private IWebDriver driver;
+        private IWebDriver driver;      // API pour lancer un navigateur web et interagir avec.
 
         public HomePageTest(string browser)
         {
             this.browser = browser;
         }
 
-        [OneTimeSetUp]
+        /*------------------------------- creation du driver --------------------------*/
+
+        [OneTimeSetUp]      // indique à NUnit d'executer la methode Setup() une fois par TestFixture  
         public void Setup()
         {
             try
@@ -53,7 +55,7 @@ namespace UITests
                     throw new ArgumentException($"'{browser}': Unknown browser");
                 }
 
-                // Wait until the page is fully loaded on every page navigation or page reload.
+                // Attendre que la page soit complètement chargée à chaque navigation ou rechargement de page.
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
 
                 // Navigate to the site.
@@ -79,8 +81,10 @@ namespace UITests
             }
         }
     
+        /*----------------------------- fermeture du navigateur ------------------------------*/
+
         [OneTimeTearDown]
-        public void Cleanup()
+        public void Cleanup()   // ferme le navigateur
         {
             if (driver != null)
             {
@@ -88,11 +92,13 @@ namespace UITests
             }
         }
 
+        /* ------------------------------------- Test UI ----------------------------------------*/
+
         // Download game
         [TestCase("download-btn", "pretend-modal")]
         // Screen image
         [TestCase("screen-01", "screen-modal")]
-        // // Top player on the leaderboard
+        // Top player on the leaderboard
         [TestCase("profile-1", "profile-modal-1")]
         public void ClickLinkById_ShouldDisplayModalById(string linkId, string modalId)
         {
@@ -104,7 +110,7 @@ namespace UITests
                 return;
             }
 
-            // Locate the link by its ID and then click the link.
+            // Locate the link by its ID and then click the link (en gros juste verifier qu'il est visible et cliquable).
             ClickElement(FindElement(By.Id(linkId)));
 
             // Locate the resulting modal.
@@ -128,6 +134,7 @@ namespace UITests
             Assert.That(modalWasDisplayed, Is.True);
         }
 
+        /*------- Test d'affichage d'un element html (ex:bouton) sur la page ----------*/
         private IWebElement FindElement(By locator, IWebElement parent = null, int timeoutSeconds = 10)
         {
             // WebDriverWait enables us to wait for the specified condition to be true
@@ -150,6 +157,7 @@ namespace UITests
                 });
         }
 
+        /* -----------------Test de click ------------------------*/
         private void ClickElement(IWebElement element)
         {
             // We expect the driver to implement IJavaScriptExecutor.
