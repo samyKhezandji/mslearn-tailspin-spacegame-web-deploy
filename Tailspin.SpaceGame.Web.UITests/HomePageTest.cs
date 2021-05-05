@@ -135,6 +135,7 @@ namespace UITests
         }
 
         /*------- Test d'affichage d'un element html (ex:bouton) sur la page ----------*/
+
         private IWebElement FindElement(By locator, IWebElement parent = null, int timeoutSeconds = 10)
         {
             // WebDriverWait enables us to wait for the specified condition to be true
