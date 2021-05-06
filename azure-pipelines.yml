@@ -153,7 +153,7 @@ stages:   # stage pour le build de l'artifact du projet d'app
         sudo apt-get install xsltproc
         xsltproc JMeter2JUnit.xsl Results.xml > JUnit.xml
       displayName: 'Transform JMeter output to JUnit'
-    - task: PublishTestResults@2    # publication du rapport de test Junit dans le piepline azure
+    - task: PublishTestResults@2    # publication du rapport de test Junit dans le piepline azure (visual)
       inputs:
         testResultsFormat: JUnit
         testResultsFiles: JUnit.xml
