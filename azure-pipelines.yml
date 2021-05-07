@@ -153,3 +153,4 @@ stages:
     # ce load balancing permet de tester les nouvelles fonctionnalitées sur une portion des utilisateurs
     # avant de la géneraliser.
     # ce type de deploiement est utilisé en prod en guise de deploiement bleu-vert. 
+    
