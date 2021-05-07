@@ -172,3 +172,5 @@ stages:   # stage pour le build de l'artifact du projet d'app
     # construit uniquement la configuration Release de l'application.
     # Par souci de concision, il omet les déclencheurs, 
     # les approbations manuelles et les tests que vous avez configurés dans les modules précédents.
+
+    
