@@ -160,7 +160,7 @@ stages:
               appName: '$(WebAppNameStaging)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-# Note
+# note
     # ce pipeline construit uniquement la configuration Release de l'application.
     # Par souci de concision, il omet les déclencheurs, 
     # les approbations manuelles et les tests que vous avez configurés dans les modules précédents.
