@@ -132,7 +132,7 @@ stages:
             inputs:
               azureSubscription: 'myConnectionService'
               deployToSlotOrASE: 'true'
-              resourceGroupName: 'tailspin-space-game-rg'
+              resourceGroupName: 'myressourcegroup'
               slotName: 'swap'
               appName: '$(WebAppNameStaging)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
@@ -144,7 +144,7 @@ stages:
               webAppName: '$(WebAppNameStaging)'
               sourceSlot: 'swap'
               targetSlot: 'production'
-              action: 'Swap Slots'
+              action: 'Swap Slots' # echanger les slots source et cible
 
 
 # notes
@@ -153,4 +153,3 @@ stages:
     # ce load balancing permet de tester les nouvelles fonctionnalitées sur une portion des utilisateurs
     # avant de la géneraliser.
     # ce type de deploiement est utilisé en prod en guise de deploiement bleu-vert. 
-    
