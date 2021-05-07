@@ -55,7 +55,7 @@ namespace UITests
                     throw new ArgumentException($"'{browser}': Unknown browser");
                 }
 
-                // Attendre que la page soit complètement chargée à chaque navigation ou rechargement de page.
+                // Wait for the page to be fully loaded each time you browse or reload a page.
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
 
                 // Navigate to the site.
@@ -83,8 +83,8 @@ namespace UITests
     
         /*----------------------------- fermeture du navigateur ------------------------------*/
 
-        [OneTimeTearDown]
-        public void Cleanup()   // ferme le navigateur
+        [OneTimeTearDown]       // indique que cette methode doit s'exec après l'execution des tests Nunit.
+        public void Cleanup()   // ferme le navigateur.
         {
             if (driver != null)
             {

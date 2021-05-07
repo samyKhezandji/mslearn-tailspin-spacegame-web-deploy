@@ -164,3 +164,10 @@ stages:
     # ce pipeline construit uniquement la configuration Release de l'application.
     # Par souci de concision, il omet les déclencheurs, 
     # les approbations manuelles et les tests que vous avez configurés dans les modules précédents.
+
+# resumé
+    # nous utilisons le framework selenium pour le test UI. 
+    # selenium utilise l'extension (API) WebDriver qui intéragit avec les navigateurs.
+    # l'objet WebDriver est le pilote du test UI.
+    # nous utilisons le framework de test unitaire Nunit.
+    # le test UI est la somme des tests unitaires.  
