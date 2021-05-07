@@ -164,8 +164,9 @@ stages:   # stage pour le build de l'artifact du projet d'app
     # Il simule un grand nombre d'utilisateurs qui accèdent simultanément à l'application Web.
     # Azure Pipelines peut analyser un fichier XML qui contient des résultats de test, mais le fichier
       # doit être dans un format pris en charge.
-    # Les formats pris en charge incluent CTest, JUnit (y compris PHPUnit), NUnit 2, NUnit 3, Visual Studio Test (TRX) et xUnit 2.
-    # Un fichier XSLT qui convertit les résultats JMeter en JUnit.
+    # Les formats pris en charge incluent CTest, JUnit (y compris PHPUnit), NUnit 2, NUnit 3, Visual Studio Test (TRX), xUnit 2.
+    # On utilise un fichier XSLT qui convertit les résultats JMeter en JUnit.
+    # JUnit est aussi un framework de test de perf.
 
 # Note
     # construit uniquement la configuration Release de l'application.
