@@ -127,16 +127,16 @@ stages:
           steps:
           - download: current
             artifact: drop
-          - task: AzureWebApp@1
+          - task: AzureWebApp@1   # deploiement de l'artifact de l'app dans l'env. staging 
             displayName: 'Azure App Service Deploy: website'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'myConnectionService'
               deployToSlotOrASE: 'true'
               resourceGroupName: 'tailspin-space-game-rg'
               slotName: 'swap'
               appName: '$(WebAppNameStaging)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
-          - task: AzureAppServiceManage@0
+          - task: AzureAppServiceManage@0   # swapping (permutation)
             displayName: 'Swap deployment slots'
             inputs:
               azureSubscription: 'myConnectionService'
@@ -145,3 +145,11 @@ stages:
               sourceSlot: 'swap'
               targetSlot: 'production'
               action: 'Swap Slots'
+
+
+# notes
+    # avoir 2 deployments slots permet de swapper de l'un à l'autre de façon trasparente
+    # avoir 2 deployements slots nous donne la possibilité de gérer la repartition du trafic utilisateur
+    # ce load balancing permet de tester les nouvelles fonctionnalitées sur une portion des utilisateurs
+    # avant de la géneraliser.
+    # ce type de deploiement est utilisé en prod en guise de deploiement bleu-vert. 
