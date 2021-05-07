@@ -170,4 +170,5 @@ stages:
     # selenium utilise l'extension (API) WebDriver qui intéragit avec les navigateurs.
     # l'objet WebDriver est le pilote du test UI.
     # nous utilisons le framework de test unitaire Nunit.
-    # le test UI est la somme des tests unitaires.  
+    # le test UI est la somme des tests unitaires. 
+     
